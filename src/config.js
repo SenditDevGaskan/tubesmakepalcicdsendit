@@ -1,6 +1,6 @@
 // API Configuration
 const API_CONFIG = {
-    BASE_URL: 'http://localhost:3000',
+    BASE_URL: 'https://sendit.aident.my.id/',
     API_ENDPOINTS: {
         LOGIN: '/api/auth',
         REGISTER: '/api/register',
