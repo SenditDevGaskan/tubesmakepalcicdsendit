@@ -16,27 +16,18 @@
     "react-router-dom": "^6.26.2",
     "react-scripts": "5.0.1",
     "recharts": "^2.12.7",
-<<<<<<< HEAD
     "serve": "^14.2.4",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "update-browserslist": "npx update-browserslist-db@latest",
+    "start": "serve -s build -l $PORT",
+    "build": "CI=false react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
-=======
+    "eject": "react-scripts eject",
     "web-vitals": "^2.1.4",
     "serve": "^14.2.0"
->>>>>>> 293cc53b6cb15a804e47c5a52a5870dd8844ea77
   },
-"scripts": {
-  "update-browserslist": "npx update-browserslist-db@latest",
-  "start": "serve -s build -l $PORT",
-  "build": "CI=false react-scripts build",
-  "test": "react-scripts test",
-  "eject": "react-scripts eject"
-},
   "eslintConfig": {
     "extends": [
       "react-app",
