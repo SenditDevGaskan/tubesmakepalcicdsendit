@@ -1,8 +1,8 @@
 // API Configuration
 const API_CONFIG = {
-    BASE_URL: 'https://sendit.aident.my.id/',
+    BASE_URL: 'https://sendit.aident.my.id',
     API_ENDPOINTS: {
-        LOGIN: '/api/auth',
+        LOGIN: '/api/login',
         REGISTER: '/api/register',
         FORGOT_PASSWORD: '/api/forgot-password',
         RESET_PASSWORD: '/api/password-reset',
@@ -12,4 +12,4 @@ const API_CONFIG = {
     }
 };
 
-export default API_CONFIG; 
+export default API_CONFIG;
