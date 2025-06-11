@@ -12,6 +12,8 @@ import PaymentPage from "./Payment/PaymentPage";
 import CheckResiPage from "./Resi/CheckResiPage";
 import ForgotPassword from "./auth/forgotPassword";
 import ResetPassword from "./auth/resetPassword";
+import SettingsPage from "./Settings/SettingsPage";
+
 const App = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem("token"));
@@ -31,6 +33,7 @@ const App = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/login" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login setIsAuthenticated={setIsAuthenticated} />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
       <div className="bg-gray-100 min-h-screen">
         {isAuthenticated && <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} handleLogout={handleLogout} />}
