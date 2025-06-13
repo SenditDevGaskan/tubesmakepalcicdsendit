@@ -47,14 +47,39 @@ const PaymentPage = () => {
   };
 
   // Add new payment
-  const addPayment = async () => {
+ const addPayment = async () => {
+    // Validate input
+    if (!newPayment.metode_pembayaran || newPayment.metode_pembayaran.trim() === "") {
+      setError("Payment method cannot be empty");
+      return;
+    }
+
     try {
-      const response = await axios.post(`${API_CONFIG.BASE_URL}${API_CONFIG.API_ENDPOINTS.PAYMENTS}`, newPayment);
-      setPayments([...payments, response.data]);
-      setNewPayment({ metode_pembayaran: "" });
       setError(null);
+      const response = await axios.post(`${API_CONFIG.BASE_URL}${API_CONFIG.API_ENDPOINTS.PAYMENTS}`, {
+        metode_pembayaran: newPayment.metode_pembayaran.trim()
+      });
+      
+      // Check if response is successful
+      if (response.data) {
+        setPayments([...payments, response.data]);
+        setNewPayment({ metode_pembayaran: "" });
+        setError(null);
+      } else {
+        setError("Failed to add payment: Invalid response from server");
+      }
     } catch (err) {
-      setError("Failed to add payment");
+      console.error("Error adding payment:", err);
+      if (err.response) {
+        // Server responded with error status
+        setError(`Failed to add payment: ${err.response.data?.message || err.response.statusText}`);
+      } else if (err.request) {
+        // Request was made but no response received
+        setError("Failed to add payment: No response from server");
+      } else {
+        // Something else happened
+        setError(`Failed to add payment: ${err.message}`);
+      }
     }
   };
 
@@ -66,34 +91,74 @@ const PaymentPage = () => {
 
   // Save edited payment
   const savePayment = async () => {
+    // Validate input
+    if (!newPayment.metode_pembayaran || newPayment.metode_pembayaran.trim() === "") {
+      setError("Payment method cannot be empty");
+      return;
+    }
+
     try {
+      setError(null);
       const response = await axios.put(
         `${API_CONFIG.BASE_URL}${API_CONFIG.API_ENDPOINTS.PAYMENTS}/${editingPayment.id_payment}`,
-        newPayment
+        {
+          metode_pembayaran: newPayment.metode_pembayaran.trim()
+        }
       );
-      setPayments(
-        payments.map((payment) =>
-          payment.id_payment === editingPayment.id_payment
-            ? response.data
-            : payment
-        )
-      );
-      setEditingPayment(null);
-      setNewPayment({ metode_pembayaran: "" });
-      setError(null);
+      
+      // Check if response is successful
+      if (response.data) {
+        setPayments(
+          payments.map((payment) =>
+            payment.id_payment === editingPayment.id_payment
+              ? response.data
+              : payment
+          )
+        );
+        setEditingPayment(null);
+        setNewPayment({ metode_pembayaran: "" });
+        setError(null);
+      } else {
+        setError("Failed to update payment: Invalid response from server");
+      }
     } catch (err) {
-      setError("Failed to update payment");
+      console.error("Error updating payment:", err);
+      if (err.response) {
+        // Server responded with error status
+        setError(`Failed to update payment: ${err.response.data?.message || err.response.statusText}`);
+      } else if (err.request) {
+        // Request was made but no response received
+        setError("Failed to update payment: No response from server");
+      } else {
+        // Something else happened
+        setError(`Failed to update payment: ${err.message}`);
+      }
     }
   };
 
   // Delete payment
   const deletePayment = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this payment method?")) {
+      return;
+    }
+
     try {
+      setError(null);
       await axios.delete(`${API_CONFIG.BASE_URL}${API_CONFIG.API_ENDPOINTS.PAYMENTS}/${id}`);
       setPayments(payments.filter((payment) => payment.id_payment !== id));
       setError(null);
     } catch (err) {
-      setError("Failed to delete payment");
+      console.error("Error deleting payment:", err);
+      if (err.response) {
+        // Server responded with error status
+        setError(`Failed to delete payment: ${err.response.data?.message || err.response.statusText}`);
+      } else if (err.request) {
+        // Request was made but no response received
+        setError("Failed to delete payment: No response from server");
+      } else {
+        // Something else happened
+        setError(`Failed to delete payment: ${err.message}`);
+      }
     }
   };
 
