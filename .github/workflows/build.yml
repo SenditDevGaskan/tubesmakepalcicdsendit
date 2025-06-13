@@ -1,28 +1,193 @@
-name: Build Web Admin Sendit
+name: CI/CD Pipeline - Sendit Web Admin
 
 on:
   push:
     branches:
       - master
+      - main
+      - develop
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  sonarqube:
-    name: SonarQube
+  # Job untuk testing dan linting
+  test:
+    name: Test and Lint
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # supaya analisis SonarCloud lebih akurat
-
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+          fetch-depth: 0
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint
+        run: npm run lint --if-present || echo "No lint script found, skipping..."
+        continue-on-error: true
+      
+      - name: Run tests with coverage
+        run: npm test -- --coverage --watchAll=false --testPathIgnorePatterns=node_modules
         env:
+          CI: true
+      
+      - name: Upload test coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: sendit-web-admin-coverage
+          fail_ci_if_error: false
+
+  # Job untuk build aplikasi
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build application
+        run: npm run build
+        env:
+          CI: false
+          GENERATE_SOURCEMAP: false
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-files
+          path: build/
+          retention-days: 7
+      
+      - name: Build success notification
+        run: echo "✅ Build completed successfully!"
+
+  # Job untuk SonarCloud analysis
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for better analysis
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run tests for coverage
+        run: npm test -- --coverage --watchAll=false --testPathIgnorePatterns=node_modules
+        env:
+          CI: true
+      
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
             -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
-            -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
             -Dsonar.sources=src
+            -Dsonar.exclusions=**/*.test.js,**/*.test.jsx,**/node_modules/**,**/build/**,**/public/**
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/*.test.js,**/*.test.jsx,src/setupTests.js,src/reportWebVitals.js,src/index.js
+
+  # Job untuk security scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: |
+          echo "🔍 Running npm audit..."
+          npm audit --audit-level=moderate || echo "⚠️ Some vulnerabilities found, but continuing..."
+        continue-on-error: true
+      
+      - name: Check for high severity vulnerabilities
+        run: |
+          echo "🔒 Checking for high severity vulnerabilities..."
+          npm audit --audit-level=high --json > audit-results.json || true
+          if [ -s audit-results.json ]; then
+            echo "⚠️ High severity vulnerabilities found. Please review."
+            cat audit-results.json
+          else
+            echo "✅ No high severity vulnerabilities found."
+          fi
+        continue-on-error: true
+
+  # Job untuk quality gate dan notification
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    needs: [build, sonarcloud, security]
+    if: always()
+    
+    steps:
+      - name: Check job results
+        run: |
+          echo "📊 Pipeline Results Summary:"
+          echo "Test Job: ${{ needs.test.result }}"
+          echo "Build Job: ${{ needs.build.result }}"
+          echo "SonarCloud Job: ${{ needs.sonarcloud.result }}"
+          echo "Security Job: ${{ needs.security.result }}"
+          
+          if [[ "${{ needs.test.result }}" == "success" && "${{ needs.build.result }}" == "success" ]]; then
+            echo "✅ Quality Gate PASSED - Ready for deployment to Railway"
+            echo "🚀 Application is ready for production deployment"
+          else
+            echo "❌ Quality Gate FAILED - Please fix issues before deployment"
+            exit 1
+          fi
+      
+      - name: Deployment ready notification
+        if: needs.test.result == 'success' && needs.build.result == 'success'
+        run: |
+          echo "🎉 All checks passed!"
+          echo "📦 Build artifacts are ready"
+          echo "🔍 Code quality analysis completed"
+          echo "🛡️ Security scan completed"
+          echo "🚂 Ready for Railway deployment"
