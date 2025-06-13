@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { Users, ShoppingCart, DollarSign, Activity, TrendingUp, ChevronUp } from "lucide-react";
 import axios from "axios";
 import API_CONFIG from "./config";
+import StatCard from "./StatCard";
 
 const AdminDashboard = () => {
   const [data, setData] = useState([]);
@@ -160,32 +161,7 @@ const AdminDashboard = () => {
   );
 };
 
-const StatCard = ({ icon: Icon, title, value, trend, color }) => {
-  const colorClasses = {
-    blue: "bg-blue-500",
-    purple: "bg-purple-500",
-    green: "bg-green-500",
-    orange: "bg-orange-500",
-  };
 
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div className={`p-3 rounded-full ${colorClasses[color]} bg-opacity-10`}>
-          <Icon className={`w-6 h-6 text-${color}-500`} />
-        </div>
-        <div className="flex items-center space-x-1">
-          <ChevronUp className="w-4 h-4 text-green-500" />
-          <span className="text-sm text-green-500">{trend}</span>
-        </div>
-      </div>
-      <div className="mt-4">
-        <h3 className="text-sm font-medium text-gray-500">{title}</h3>
-        <p className="mt-2 text-2xl font-semibold text-gray-800">{value}</p>
-      </div>
-    </div>
-  );
-};
 
 export default AdminDashboard;
 
