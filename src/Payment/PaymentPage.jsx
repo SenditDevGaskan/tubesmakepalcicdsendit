@@ -126,8 +126,8 @@ const PaymentPage = () => {
       const requestData = {
         metode_pembayaran: newPayment.metode_pembayaran.trim(),
         harga: 50000, // Dummy price data
-        id_pemesanan: 1, // Dummy order ID
-        id_user: 1 // Dummy user ID
+        id_pemesanan: 27, // Dummy order ID
+        id_user: 30 // Dummy user ID
       };
       
       console.log("Updating payment with data:", requestData);
