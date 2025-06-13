@@ -58,10 +58,7 @@ const PaymentPage = () => {
       setError(null);
       // Send only the required field based on database structure
         const requestData = {
-          metode_pembayaran: newPayment.metode_pembayaran.trim(),
-          harga: 50000, // Dummy price data
-          id_pemesanan: 1, // Dummy order ID
-          id_user: 1 // Dummy user ID
+          metode_pembayaran: newPayment.metode_pembayaran.trim()
         };
        
        console.log("Sending request data:", requestData);
@@ -124,10 +121,7 @@ const PaymentPage = () => {
     try {
       setError(null);
       const requestData = {
-        metode_pembayaran: newPayment.metode_pembayaran.trim(),
-        harga: 50000, // Dummy price data
-        id_pemesanan: 1, // Dummy order ID
-        id_user: 1 // Dummy user ID
+        metode_pembayaran: newPayment.metode_pembayaran.trim()
       };
       
       console.log("Updating payment with data:", requestData);

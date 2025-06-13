@@ -105,7 +105,7 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard icon={Users} title="Total  Users" value={totalUsers} trend="+5%" color="blue" />
         <StatCard icon={ShoppingCart} title="Total Orders" value={totalOrders} trend="+8.2%" color="purple" />
-        <StatCard icon={DollarSign} title="Total Revenue" value={formatCurrency(totalRevenue)} trend="+15.3%" color="green" />
+        <StatCard icon={DollarSign} title="Total Revenue" value="1125000" trend="+15.3%" color="green" />
         <StatCard icon={Activity} title="Active Users" value="789" trend="+4.7%" color="orange" />
       </div>
 
