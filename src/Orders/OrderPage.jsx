@@ -298,10 +298,14 @@ const OrderPage = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengirim</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Penerima</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jenis Paket</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jarak</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi Jemput</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lokasi Tujuan</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Harga</th>
+                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pembayaran</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
               </tr>
@@ -309,11 +313,31 @@ const OrderPage = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {orders.map((order) => (
                 <tr key={order.id_pemesanan} className="hover:bg-blue-50 transition">
-                  <td className="px-4 py-2 whitespace-nowrap">{order.id_pemesanan}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{order.id_user}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{order.jarak} km</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{order.lokasi_jemput}</td>
-                  <td className="px-4 py-2 whitespace-nowrap">{order.lokasi_tujuan}</td>
+                  <td className="px-4 py-2 whitespace-nowrap font-medium text-gray-900">{order.id_pemesanan}</td>
+                  <td className="px-4 py-2">
+                    <div className="text-sm font-medium text-gray-900">{order.nama_pengirim}</div>
+                    <div className="text-sm text-gray-500">{order.no_hp_pengirim}</div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="text-sm font-medium text-gray-900">{order.nama_penerima}</div>
+                    <div className="text-sm text-gray-500">{order.no_hp_penerima}</div>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {order.jenis_paket || 'Tidak Diketahui'}
+                    </span>
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{order.jarak} km</td>
+                  <td className="px-4 py-2 text-sm text-gray-900">{order.lokasi_jemput}</td>
+                  <td className="px-4 py-2 text-sm text-gray-900">{order.lokasi_tujuan}</td>
+                  <td className="px-4 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                    Rp {order.total_harga ? Number(order.total_harga).toLocaleString('id-ID') : '0'}
+                  </td>
+                  <td className="px-4 py-2 whitespace-nowrap">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {order.metode_pembayaran || 'Belum Dipilih'}
+                    </span>
+                  </td>
                   <td className="px-4 py-2 whitespace-nowrap">
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${statusColors[order.status] || "bg-gray-100 text-gray-800"}`}>{order.status}</span>
                   </td>
