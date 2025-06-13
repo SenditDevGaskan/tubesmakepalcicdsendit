@@ -56,9 +56,23 @@ const PaymentPage = () => {
 
     try {
       setError(null);
-      const response = await axios.post(`${API_CONFIG.BASE_URL}${API_CONFIG.API_ENDPOINTS.PAYMENTS}`, {
-        metode_pembayaran: newPayment.metode_pembayaran.trim()
-      });
+      // Send only the required field based on database structure
+        const requestData = {
+          metode_pembayaran: newPayment.metode_pembayaran.trim()
+        };
+       
+       console.log("Sending request data:", requestData);
+       
+       const response = await axios.post(
+         `${API_CONFIG.BASE_URL}${API_CONFIG.API_ENDPOINTS.PAYMENTS}`,
+         requestData,
+         {
+           headers: {
+             'Content-Type': 'application/json',
+             'Accept': 'application/json'
+           }
+         }
+       );
       
       // Check if response is successful
       if (response.data) {
@@ -70,9 +84,16 @@ const PaymentPage = () => {
       }
     } catch (err) {
       console.error("Error adding payment:", err);
+      console.error("Error response:", err.response?.data);
+      console.error("Error status:", err.response?.status);
+      
       if (err.response) {
         // Server responded with error status
-        setError(`Failed to add payment: ${err.response.data?.message || err.response.statusText}`);
+        const errorMessage = err.response.data?.message || 
+                           err.response.data?.error || 
+                           err.response.statusText || 
+                           `Server error (${err.response.status})`;
+        setError(`Failed to add payment: ${errorMessage}`);
       } else if (err.request) {
         // Request was made but no response received
         setError("Failed to add payment: No response from server");
@@ -99,10 +120,20 @@ const PaymentPage = () => {
 
     try {
       setError(null);
+      const requestData = {
+        metode_pembayaran: newPayment.metode_pembayaran.trim()
+      };
+      
+      console.log("Updating payment with data:", requestData);
+      
       const response = await axios.put(
         `${API_CONFIG.BASE_URL}${API_CONFIG.API_ENDPOINTS.PAYMENTS}/${editingPayment.id_payment}`,
+        requestData,
         {
-          metode_pembayaran: newPayment.metode_pembayaran.trim()
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          }
         }
       );
       
